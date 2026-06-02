@@ -9,38 +9,28 @@
 #include <string>
 using namespace std;
 
-// ============================================================
-// === INTEGRANTE 1: Estructuras base y Lista Enlazada      ===
-// === (Gestor de Pacientes)                                ===
-// ============================================================
-
-// Estructura que representa un paciente
 struct Paciente {
     int id;
     string nombre;
-    int prioridad;   // 1=urgente, 2=moderado, 3=leve
-    string estado;   // "espera", "atencion", "alta"
+    int prioridad; 
+    string estado; 
 };
 
-// Nodo para la lista enlazada
 struct NodoPaciente {
     Paciente datos;
     NodoPaciente* siguiente;
 };
 
-// Lista enlazada de pacientes registrados
 struct ListaPacientes {
     NodoPaciente* cabeza;
     int contador;
 };
 
-// Inicializar lista
 void inicializarLista(ListaPacientes& lista) {
     lista.cabeza = nullptr;
     lista.contador = 0;
 }
 
-// Insertar nuevo paciente al final de la lista
 void insertarPaciente(ListaPacientes& lista, int id, string nombre, int prioridad) {
     NodoPaciente* nuevo = new NodoPaciente();
     nuevo->datos = {id, nombre, prioridad, "espera"};
@@ -50,8 +40,6 @@ void insertarPaciente(ListaPacientes& lista, int id, string nombre, int priorida
         lista.cabeza = nuevo;
     } else {
         NodoPaciente* actual = lista.cabeza;
-        // FOR: recorre la lista hasta llegar al ultimo nodo
-        // se usa FOR porque sabemos que hay un fin definido (el nullptr)
         for (; actual->siguiente != nullptr; actual = actual->siguiente);
         actual->siguiente = nuevo;
     }
@@ -59,12 +47,10 @@ void insertarPaciente(ListaPacientes& lista, int id, string nombre, int priorida
     cout << ">> Paciente registrado: " << nombre << " (ID: " << id << ")\n";
 }
 
-// Eliminar paciente por ID
 void eliminarPaciente(ListaPacientes& lista, int id) {
     NodoPaciente* actual = lista.cabeza;
     NodoPaciente* anterior = nullptr;
 
-    // WHILE: recorre la lista porque no sabemos en que posicion esta el ID
     while (actual != nullptr) {
         if (actual->datos.id == id) {
             if (anterior == nullptr)
@@ -82,10 +68,8 @@ void eliminarPaciente(ListaPacientes& lista, int id) {
     cout << ">> Paciente con ID " << id << " no encontrado.\n";
 }
 
-// Buscar paciente por ID
 NodoPaciente* buscarPaciente(ListaPacientes& lista, int id) {
     NodoPaciente* actual = lista.cabeza;
-    // WHILE: buscamos sin saber donde esta el elemento
     while (actual != nullptr) {
         if (actual->datos.id == id)
             return actual;
@@ -94,10 +78,8 @@ NodoPaciente* buscarPaciente(ListaPacientes& lista, int id) {
     return nullptr;
 }
 
-// Modificar prioridad de un paciente
 void modificarPrioridad(ListaPacientes& lista, int id, int nuevaPrioridad) {
     NodoPaciente* nodo = buscarPaciente(lista, id);
-    // IF_ELSE: verificamos si el paciente existe antes de modificar
     if (nodo != nullptr) {
         nodo->datos.prioridad = nuevaPrioridad;
         cout << ">> Prioridad actualizada para ID " << id << ": " << nuevaPrioridad << "\n";
@@ -106,7 +88,6 @@ void modificarPrioridad(ListaPacientes& lista, int id, int nuevaPrioridad) {
     }
 }
 
-// Mostrar todos los pacientes
 void mostrarPacientes(ListaPacientes& lista) {
     if (lista.cabeza == nullptr) {
         cout << ">> No hay pacientes registrados.\n";
@@ -114,7 +95,6 @@ void mostrarPacientes(ListaPacientes& lista) {
     }
     cout << "\n--- LISTA DE PACIENTES ---\n";
     NodoPaciente* actual = lista.cabeza;
-    // WHILE: recorremos todos los nodos para mostrarlos
     while (actual != nullptr) {
         cout << "ID: " << actual->datos.id
              << " | Nombre: " << actual->datos.nombre
