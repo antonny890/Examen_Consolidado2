@@ -252,11 +252,56 @@ void mostrarPila(PilaRecursos& pila) {
     }
     cout << "\n--- RECURSOS ASIGNADOS (tope -> base) ---\n";
     NodoPila* actual = pila.tope;
-    // WHILE: recorremos la pila desde el tope hacia la base
     while (actual != nullptr) {
         cout << "Recurso: " << actual->recurso
              << " | Paciente ID: " << actual->idPaciente << "\n";
         actual = actual->siguiente;
     }
     cout << "-----------------------------------------\n";
+}
+
+// ================
+// === INTEGRANTE 4
+
+
+
+void guardarPacientes(ListaPacientes& lista) {
+    ofstream archivo("pacientes.txt");
+    if (!archivo.is_open()) {
+        cout << ">> Error al guardar datos.\n";
+        return;
+    }
+    NodoPaciente* actual = lista.cabeza;
+    while (actual != nullptr) {
+        archivo << actual->datos.id << ","
+                << actual->datos.nombre << ","
+                << actual->datos.prioridad << ","
+                << actual->datos.estado << "\n";
+        actual = actual->siguiente;
+    }
+    archivo.close();
+    cout << ">> Datos guardados en 'pacientes.txt'.\n";
+}
+
+void cargarPacientes(ListaPacientes& lista) {
+    ifstream archivo("pacientes.txt");
+    if (!archivo.is_open()) {
+        cout << ">> No se encontro archivo de datos previos.\n";
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea)) {
+        int id, prioridad;
+        string nombre, estado;
+        int pos1 = linea.find(',');
+        int pos2 = linea.find(',', pos1 + 1);
+        int pos3 = linea.find(',', pos2 + 1);
+        id       = stoi(linea.substr(0, pos1));
+        nombre   = linea.substr(pos1 + 1, pos2 - pos1 - 1);
+        prioridad= stoi(linea.substr(pos2 + 1, pos3 - pos2 - 1));
+        estado   = linea.substr(pos3 + 1);
+        insertarPaciente(lista, id, nombre, prioridad);
+    }
+    archivo.close();
+    cout << ">> Datos cargados correctamente.\n";
 }
