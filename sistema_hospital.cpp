@@ -105,3 +105,89 @@ void mostrarPacientes(ListaPacientes& lista) {
     cout << "--------------------------\n";
 }
 
+
+// ========================================
+// === INTEGRANTE 2: Cola de Prioridad  ===
+
+
+
+struct NodoCola {
+    Paciente datos;
+    NodoCola* siguiente;
+};
+
+
+struct ColaAtencion {
+    NodoCola* frente;
+    NodoCola* final;
+    int tamanio;
+};
+
+
+void inicializarCola(ColaAtencion& cola) {
+    cola.frente = nullptr;
+    cola.final = nullptr;
+    cola.tamanio = 0;
+}
+
+
+void encolarPaciente(ColaAtencion& cola, Paciente p) {
+    NodoCola* nuevo = new NodoCola();
+    nuevo->datos = p;
+    nuevo->siguiente = nullptr;
+
+
+    if (cola.frente == nullptr) {
+        cola.frente = nuevo;
+        cola.final = nuevo;
+    } else {
+        if (nuevo->datos.prioridad < cola.frente->datos.prioridad) {
+            nuevo->siguiente = cola.frente;
+            cola.frente = nuevo;
+        } else {
+            NodoCola* actual = cola.frente;
+            while (actual->siguiente != nullptr &&
+                   actual->siguiente->datos.prioridad <= nuevo->datos.prioridad) {
+                actual = actual->siguiente;
+            }
+            nuevo->siguiente = actual->siguiente;
+            actual->siguiente = nuevo;
+            if (nuevo->siguiente == nullptr)
+                cola.final = nuevo;
+        }
+    }
+    cola.tamanio++;
+    cout << ">> Paciente encolado: " << p.nombre << " (Prioridad: " << p.prioridad << ")\n";
+}
+
+
+void desencolarPaciente(ColaAtencion& cola) {
+    if (cola.frente == nullptr) {
+        cout << ">> No hay pacientes en cola de atencion.\n";
+        return;
+    }
+    NodoCola* atendido = cola.frente;
+    cout << ">> Atendiendo a: " << atendido->datos.nombre
+         << " (ID: " << atendido->datos.id << ", Prioridad: " << atendido->datos.prioridad << ")\n";
+    cola.frente = cola.frente->siguiente;
+    if (cola.frente == nullptr)
+        cola.final = nullptr;
+    delete atendido;
+    cola.tamanio--;
+}
+
+void mostrarCola(ColaAtencion& cola) {
+    if (cola.frente == nullptr) {
+        cout << ">> La cola de atencion esta vacia.\n";
+        return;
+    }
+    cout << "\n--- COLA DE ATENCION (frente -> final) ---\n";
+    NodoCola* actual = cola.frente;
+    int pos = 1;
+    while (actual != nullptr) {
+        cout << pos++ << ". " << actual->datos.nombre
+             << " | Prioridad: " << actual->datos.prioridad << "\n";
+        actual = actual->siguiente;
+    }
+    cout << "------------------------------------------\n";
+}
