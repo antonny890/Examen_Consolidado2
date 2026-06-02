@@ -4,6 +4,11 @@
 //  Universidad Continental - Plan 2024
 // ============================================================
 
+
+
+// ========================================
+// === INTEGRANTE 1: Cola de Prioridad  ===
+
 #include <iostream>
 #include <fstream>
 #include <string>
