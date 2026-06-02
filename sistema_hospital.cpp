@@ -196,3 +196,67 @@ void mostrarCola(ColaAtencion& cola) {
     }
     cout << "------------------------------------------\n";
 }
+
+
+// ==================
+// === INTEGRANTE 3: 
+
+struct NodoPila {
+    string recurso;
+    int idPaciente;
+    NodoPila* siguiente;
+};
+
+
+struct PilaRecursos {
+    NodoPila* tope;
+    int tamanio;
+};
+
+
+void inicializarPila(PilaRecursos& pila) {
+    pila.tope = nullptr;
+    pila.tamanio = 0;
+}
+
+
+void asignarRecurso(PilaRecursos& pila, string recurso, int idPaciente) {
+    NodoPila* nuevo = new NodoPila();
+    nuevo->recurso = recurso;
+    nuevo->idPaciente = idPaciente;
+    nuevo->siguiente = pila.tope;
+    pila.tope = nuevo;
+    pila.tamanio++;
+    cout << ">> Recurso '" << recurso << "' asignado al paciente ID " << idPaciente << "\n";
+}
+
+
+void liberarRecurso(PilaRecursos& pila) {
+    if (pila.tope == nullptr) {
+        cout << ">> No hay recursos asignados actualmente.\n";
+        return;
+    }
+    NodoPila* liberado = pila.tope;
+    cout << ">> Recurso liberado: '" << liberado->recurso
+         << "' (Paciente ID: " << liberado->idPaciente << ")\n";
+    pila.tope = pila.tope->siguiente;
+    delete liberado;
+    pila.tamanio--;
+}
+
+
+void mostrarPila(PilaRecursos& pila) {
+    if (pila.tope == nullptr) {
+        cout << ">> No hay recursos asignados.\n";
+        return;
+    }
+    cout << "\n--- RECURSOS ASIGNADOS (tope -> base) ---\n";
+    NodoPila* actual = pila.tope;
+    // WHILE: recorremos la pila desde el tope hacia la base
+    while (actual != nullptr) {
+        cout << "Recurso: " << actual->recurso
+             << " | Paciente ID: " << actual->idPaciente << "\n";
+        actual = actual->siguiente;
+    }
+    cout << "-----------------------------------------\n";
+}
