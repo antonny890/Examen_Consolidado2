@@ -305,3 +305,129 @@ void cargarPacientes(ListaPacientes& lista) {
     archivo.close();
     cout << ">> Datos cargados correctamente.\n";
 }
+
+
+// ================
+// === INTEGRANTE 5
+
+void mostrarMenu() {
+    cout << "\n========================================\n";
+    cout << "   SISTEMA DE GESTION HOSPITALARIA\n";
+    cout << "========================================\n";
+    cout << "  --- GESTOR DE PACIENTES ---\n";
+    cout << "  1. Registrar nuevo paciente\n";
+    cout << "  2. Eliminar paciente\n";
+    cout << "  3. Buscar paciente por ID\n";
+    cout << "  4. Modificar prioridad de paciente\n";
+    cout << "  5. Mostrar todos los pacientes\n";
+    cout << "  --- COLA DE ATENCION ---\n";
+    cout << "  6. Encolar paciente para atencion\n";
+    cout << "  7. Atender siguiente paciente (desencolar)\n";
+    cout << "  8. Ver cola de atencion actual\n";
+    cout << "  --- RECURSOS / CAMAS ---\n";
+    cout << "  9. Asignar recurso a paciente\n";
+    cout << " 10. Liberar ultimo recurso\n";
+    cout << " 11. Ver estado de recursos\n";
+    cout << "  --- DATOS ---\n";
+    cout << " 12. Guardar datos\n";
+    cout << " 13. Cargar datos\n";
+    cout << "  0. Salir\n";
+    cout << "========================================\n";
+    cout << "Opcion: ";
+}
+
+
+int main() {
+    ListaPacientes lista;
+    ColaAtencion cola;
+    PilaRecursos pila;
+
+
+    inicializarLista(lista);
+    inicializarCola(cola);
+    inicializarPila(pila);
+
+
+    int opcion;
+
+    do {
+        mostrarMenu();
+        cin >> opcion;
+        cin.ignore();
+
+        if (opcion == 1) {
+            int id, prioridad;
+            string nombre;
+            cout << "ID: "; cin >> id; cin.ignore();
+            cout << "Nombre: "; getline(cin, nombre);
+            cout << "Prioridad (1=urgente, 2=moderado, 3=leve): "; cin >> prioridad;
+            insertarPaciente(lista, id, nombre, prioridad);
+
+        } else if (opcion == 2) {
+            int id;
+            cout << "ID a eliminar: "; cin >> id;
+            eliminarPaciente(lista, id);
+
+        } else if (opcion == 3) {
+            int id;
+            cout << "ID a buscar: "; cin >> id;
+            NodoPaciente* resultado = buscarPaciente(lista, id);
+            if (resultado != nullptr)
+                cout << ">> Encontrado: " << resultado->datos.nombre
+                     << " | Prioridad: " << resultado->datos.prioridad << "\n";
+            else
+                cout << ">> Paciente no encontrado.\n";
+
+
+        } else if (opcion == 4) {
+            int id, nuevaPrioridad;
+            cout << "ID: "; cin >> id;
+            cout << "Nueva prioridad: "; cin >> nuevaPrioridad;
+            modificarPrioridad(lista, id, nuevaPrioridad);
+
+        } else if (opcion == 5) {
+            mostrarPacientes(lista);
+
+        } else if (opcion == 6) {
+            int id;
+            cout << "ID del paciente a encolar: "; cin >> id;
+            NodoPaciente* p = buscarPaciente(lista, id);
+            if (p != nullptr)
+                encolarPaciente(cola, p->datos);
+            else
+                cout << ">> Paciente no encontrado en la lista.\n";
+
+        } else if (opcion == 7) {
+            desencolarPaciente(cola);
+
+        } else if (opcion == 8) {
+            mostrarCola(cola);
+
+        } else if (opcion == 9) {
+            string recurso;
+            int id;
+            cout << "Nombre del recurso (ej: Cama-101): "; cin.ignore(); getline(cin, recurso);
+            cout << "ID del paciente: "; cin >> id;
+            asignarRecurso(pila, recurso, id);
+
+        } else if (opcion == 10) {
+            liberarRecurso(pila);
+
+        } else if (opcion == 11) {
+            mostrarPila(pila);
+
+        } else if (opcion == 12) {
+            guardarPacientes(lista);
+
+        } else if (opcion == 13) {
+            cargarPacientes(lista);
+
+        } else if (opcion != 0) {
+            cout << ">> Opcion invalida.\n";
+        }
+
+    } while (opcion != 0);
+
+    cout << ">> Sistema cerrado. Hasta pronto.\n";
+    return 0;
+}
