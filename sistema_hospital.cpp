@@ -4,11 +4,6 @@
 //  Universidad Continental - Plan 2024
 // ============================================================
 
-
-
-// ========================================
-// === INTEGRANTE 1: Cola de Prioridad  ===
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -17,8 +12,8 @@ using namespace std;
 struct Paciente {
     int id;
     string nombre;
-    int prioridad; 
-    string estado; 
+    int prioridad;
+    string estado;
 };
 
 struct NodoPaciente {
@@ -36,7 +31,34 @@ void inicializarLista(ListaPacientes& lista) {
     lista.contador = 0;
 }
 
+NodoPaciente* buscarPaciente(ListaPacientes& lista, int id) {
+    NodoPaciente* actual = lista.cabeza;
+    while (actual != nullptr) {
+        if (actual->datos.id == id)
+            return actual;
+        actual = actual->siguiente;
+    }
+    return nullptr;
+}
+
+bool existePaciente(ListaPacientes& lista, int id) {
+    return buscarPaciente(lista, id) != nullptr;
+}
+
 void insertarPaciente(ListaPacientes& lista, int id, string nombre, int prioridad) {
+    if (id <= 0) {
+        cout << ">> Error: ID invalido.\n";
+        return;
+    }
+    if (prioridad < 1 || prioridad > 3) {
+        cout << ">> Error: Prioridad invalida.\n";
+        return;
+    }
+    if (existePaciente(lista, id)) {
+        cout << ">> Error: Ya existe un paciente con el ID " << id << ".\n";
+        return;
+    }
+
     NodoPaciente* nuevo = new NodoPaciente();
     nuevo->datos = {id, nombre, prioridad, "espera"};
     nuevo->siguiente = nullptr;
@@ -45,7 +67,8 @@ void insertarPaciente(ListaPacientes& lista, int id, string nombre, int priorida
         lista.cabeza = nuevo;
     } else {
         NodoPaciente* actual = lista.cabeza;
-        for (; actual->siguiente != nullptr; actual = actual->siguiente);
+        while (actual->siguiente != nullptr)
+            actual = actual->siguiente;
         actual->siguiente = nuevo;
     }
     lista.contador++;
@@ -71,16 +94,6 @@ void eliminarPaciente(ListaPacientes& lista, int id) {
         actual = actual->siguiente;
     }
     cout << ">> Paciente con ID " << id << " no encontrado.\n";
-}
-
-NodoPaciente* buscarPaciente(ListaPacientes& lista, int id) {
-    NodoPaciente* actual = lista.cabeza;
-    while (actual != nullptr) {
-        if (actual->datos.id == id)
-            return actual;
-        actual = actual->siguiente;
-    }
-    return nullptr;
 }
 
 void modificarPrioridad(ListaPacientes& lista, int id, int nuevaPrioridad) {
@@ -114,13 +127,10 @@ void mostrarPacientes(ListaPacientes& lista) {
 // ========================================
 // === INTEGRANTE 2: Cola de Prioridad  ===
 
-
-
 struct NodoCola {
     Paciente datos;
     NodoCola* siguiente;
 };
-
 
 struct ColaAtencion {
     NodoCola* frente;
@@ -128,19 +138,26 @@ struct ColaAtencion {
     int tamanio;
 };
 
-
 void inicializarCola(ColaAtencion& cola) {
     cola.frente = nullptr;
     cola.final = nullptr;
     cola.tamanio = 0;
 }
 
+bool estaEnCola(ColaAtencion& cola, int id) {
+    NodoCola* actual = cola.frente;
+    while (actual != nullptr) {
+        if (actual->datos.id == id)
+            return true;
+        actual = actual->siguiente;
+    }
+    return false;
+}
 
 void encolarPaciente(ColaAtencion& cola, Paciente p) {
     NodoCola* nuevo = new NodoCola();
     nuevo->datos = p;
     nuevo->siguiente = nullptr;
-
 
     if (cola.frente == nullptr) {
         cola.frente = nuevo;
@@ -164,7 +181,6 @@ void encolarPaciente(ColaAtencion& cola, Paciente p) {
     cola.tamanio++;
     cout << ">> Paciente encolado: " << p.nombre << " (Prioridad: " << p.prioridad << ")\n";
 }
-
 
 void desencolarPaciente(ColaAtencion& cola) {
     if (cola.frente == nullptr) {
@@ -199,7 +215,7 @@ void mostrarCola(ColaAtencion& cola) {
 
 
 // ==================
-// === INTEGRANTE 3: 
+// === INTEGRANTE 3: Pila de Recursos ===
 
 struct NodoPila {
     string recurso;
@@ -207,18 +223,15 @@ struct NodoPila {
     NodoPila* siguiente;
 };
 
-
 struct PilaRecursos {
     NodoPila* tope;
     int tamanio;
 };
 
-
 void inicializarPila(PilaRecursos& pila) {
     pila.tope = nullptr;
     pila.tamanio = 0;
 }
-
 
 void asignarRecurso(PilaRecursos& pila, string recurso, int idPaciente) {
     NodoPila* nuevo = new NodoPila();
@@ -229,7 +242,6 @@ void asignarRecurso(PilaRecursos& pila, string recurso, int idPaciente) {
     pila.tamanio++;
     cout << ">> Recurso '" << recurso << "' asignado al paciente ID " << idPaciente << "\n";
 }
-
 
 void liberarRecurso(PilaRecursos& pila) {
     if (pila.tope == nullptr) {
@@ -243,7 +255,6 @@ void liberarRecurso(PilaRecursos& pila) {
     delete liberado;
     pila.tamanio--;
 }
-
 
 void mostrarPila(PilaRecursos& pila) {
     if (pila.tope == nullptr) {
@@ -260,10 +271,9 @@ void mostrarPila(PilaRecursos& pila) {
     cout << "-----------------------------------------\n";
 }
 
+
 // ================
-// === INTEGRANTE 4
-
-
+// === INTEGRANTE 4: Persistencia ===
 
 void guardarPacientes(ListaPacientes& lista) {
     ofstream archivo("pacientes.txt");
@@ -289,6 +299,17 @@ void cargarPacientes(ListaPacientes& lista) {
         cout << ">> No se encontro archivo de datos previos.\n";
         return;
     }
+
+    // Vaciar la lista antes de cargar para evitar duplicados
+    NodoPaciente* actual = lista.cabeza;
+    while (actual != nullptr) {
+        NodoPaciente* siguiente = actual->siguiente;
+        delete actual;
+        actual = siguiente;
+    }
+    lista.cabeza = nullptr;
+    lista.contador = 0;
+
     string linea;
     while (getline(archivo, linea)) {
         int id, prioridad;
@@ -296,10 +317,10 @@ void cargarPacientes(ListaPacientes& lista) {
         int pos1 = linea.find(',');
         int pos2 = linea.find(',', pos1 + 1);
         int pos3 = linea.find(',', pos2 + 1);
-        id       = stoi(linea.substr(0, pos1));
-        nombre   = linea.substr(pos1 + 1, pos2 - pos1 - 1);
-        prioridad= stoi(linea.substr(pos2 + 1, pos3 - pos2 - 1));
-        estado   = linea.substr(pos3 + 1);
+        id        = stoi(linea.substr(0, pos1));
+        nombre    = linea.substr(pos1 + 1, pos2 - pos1 - 1);
+        prioridad = stoi(linea.substr(pos2 + 1, pos3 - pos2 - 1));
+        estado    = linea.substr(pos3 + 1);
         insertarPaciente(lista, id, nombre, prioridad);
     }
     archivo.close();
@@ -308,7 +329,7 @@ void cargarPacientes(ListaPacientes& lista) {
 
 
 // ================
-// === INTEGRANTE 5
+// === INTEGRANTE 5: Menú Principal ===
 
 void mostrarMenu() {
     cout << "\n========================================\n";
@@ -336,17 +357,14 @@ void mostrarMenu() {
     cout << "Opcion: ";
 }
 
-
 int main() {
     ListaPacientes lista;
     ColaAtencion cola;
     PilaRecursos pila;
 
-
     inicializarLista(lista);
     inicializarCola(cola);
     inicializarPila(pila);
-
 
     int opcion;
 
@@ -355,75 +373,97 @@ int main() {
         cin >> opcion;
         cin.ignore();
 
-        if (opcion == 1) {
-            int id, prioridad;
-            string nombre;
-            cout << "ID: "; cin >> id; cin.ignore();
-            cout << "Nombre: "; getline(cin, nombre);
-            cout << "Prioridad (1=urgente, 2=moderado, 3=leve): "; cin >> prioridad;
-            insertarPaciente(lista, id, nombre, prioridad);
-
-        } else if (opcion == 2) {
-            int id;
-            cout << "ID a eliminar: "; cin >> id;
-            eliminarPaciente(lista, id);
-
-        } else if (opcion == 3) {
-            int id;
-            cout << "ID a buscar: "; cin >> id;
-            NodoPaciente* resultado = buscarPaciente(lista, id);
-            if (resultado != nullptr)
-                cout << ">> Encontrado: " << resultado->datos.nombre
-                     << " | Prioridad: " << resultado->datos.prioridad << "\n";
-            else
-                cout << ">> Paciente no encontrado.\n";
-
-
-        } else if (opcion == 4) {
-            int id, nuevaPrioridad;
-            cout << "ID: "; cin >> id;
-            cout << "Nueva prioridad: "; cin >> nuevaPrioridad;
-            modificarPrioridad(lista, id, nuevaPrioridad);
-
-        } else if (opcion == 5) {
-            mostrarPacientes(lista);
-
-        } else if (opcion == 6) {
-            int id;
-            cout << "ID del paciente a encolar: "; cin >> id;
-            NodoPaciente* p = buscarPaciente(lista, id);
-            if (p != nullptr)
-                encolarPaciente(cola, p->datos);
-            else
-                cout << ">> Paciente no encontrado en la lista.\n";
-
-        } else if (opcion == 7) {
-            desencolarPaciente(cola);
-
-        } else if (opcion == 8) {
-            mostrarCola(cola);
-
-        } else if (opcion == 9) {
-            string recurso;
-            int id;
-            cout << "Nombre del recurso (ej: Cama-101): "; cin.ignore(); getline(cin, recurso);
-            cout << "ID del paciente: "; cin >> id;
-            asignarRecurso(pila, recurso, id);
-
-        } else if (opcion == 10) {
-            liberarRecurso(pila);
-
-        } else if (opcion == 11) {
-            mostrarPila(pila);
-
-        } else if (opcion == 12) {
-            guardarPacientes(lista);
-
-        } else if (opcion == 13) {
-            cargarPacientes(lista);
-
-        } else if (opcion != 0) {
-            cout << ">> Opcion invalida.\n";
+        switch (opcion) {
+            case 1: {
+                int id, prioridad;
+                string nombre;
+                cout << "ID: "; cin >> id; cin.ignore();
+                cout << "Nombre: "; getline(cin, nombre);
+                do {
+                    cout << "Prioridad (1=urgente, 2=moderado, 3=leve): ";
+                    cin >> prioridad;
+                    if (prioridad < 1 || prioridad > 3)
+                        cout << ">> Error: Solo se permiten prioridades 1, 2 o 3.\n";
+                } while (prioridad < 1 || prioridad > 3);
+                insertarPaciente(lista, id, nombre, prioridad);
+                break;
+            }
+            case 2: {
+                int id;
+                cout << "ID a eliminar: "; cin >> id;
+                eliminarPaciente(lista, id);
+                break;
+            }
+            case 3: {
+                int id;
+                cout << "ID a buscar: "; cin >> id;
+                NodoPaciente* resultado = buscarPaciente(lista, id);
+                if (resultado != nullptr)
+                    cout << ">> Encontrado: " << resultado->datos.nombre
+                         << " | Prioridad: " << resultado->datos.prioridad << "\n";
+                else
+                    cout << ">> Paciente no encontrado.\n";
+                break;
+            }
+            case 4: {
+                int id, nuevaPrioridad;
+                cout << "ID del paciente: "; cin >> id;
+                do {
+                    cout << "Nueva prioridad (1-3): ";
+                    cin >> nuevaPrioridad;
+                    if (nuevaPrioridad < 1 || nuevaPrioridad > 3)
+                        cout << ">> Error: Solo se permiten prioridades 1, 2 o 3.\n";
+                } while (nuevaPrioridad < 1 || nuevaPrioridad > 3);
+                modificarPrioridad(lista, id, nuevaPrioridad);
+                break;
+            }
+            case 5:
+                mostrarPacientes(lista);
+                break;
+            case 6: {
+                int id;
+                cout << "ID del paciente a encolar: "; cin >> id;
+                NodoPaciente* p = buscarPaciente(lista, id);
+                if (p != nullptr) {
+                    if (estaEnCola(cola, id))
+                        cout << ">> Error: El paciente ya se encuentra en la cola.\n";
+                    else
+                        encolarPaciente(cola, p->datos);
+                } else {
+                    cout << ">> Paciente no encontrado en la lista.\n";
+                }
+                break;
+            }
+            case 7:
+                desencolarPaciente(cola);
+                break;
+            case 8:
+                mostrarCola(cola);
+                break;
+            case 9: {
+                string recurso;
+                int id;
+                cout << "Nombre del recurso (ej: Cama-101): "; getline(cin, recurso);
+                cout << "ID del paciente: "; cin >> id;
+                asignarRecurso(pila, recurso, id);
+                break;
+            }
+            case 10:
+                liberarRecurso(pila);
+                break;
+            case 11:
+                mostrarPila(pila);
+                break;
+            case 12:
+                guardarPacientes(lista);
+                break;
+            case 13:
+                cargarPacientes(lista);
+                break;
+            case 0:
+                break;
+            default:
+                cout << ">> Opcion invalida.\n";
         }
 
     } while (opcion != 0);
